@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\FileUploadController;
 use App\Http\Controllers\UserController;
 use GuzzleHttp\Middleware;
 use Illuminate\Http\Request;
@@ -21,6 +22,8 @@ Route::get('/', function () {
     return view('auth.login');
 });
 
+
+Route::get('/upload', [FileUploadController::class, 'index']);
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('home', function () {
