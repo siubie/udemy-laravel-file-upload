@@ -18,9 +18,24 @@
                             <h4>All Files</h4>
 
                         </div>
-                        <div class="card-body">
-                            <div class="clearfix mb-3"></div>
-                        </div>
+                        <form method="POST" enctype="multipart/form-data" action="{{ route('fileupload.store') }}">
+                            @csrf
+                            <div class="card-body">
+                                <div class="form-group">
+                                    <label>Pilih File</label>
+                                    <input type="file" class="form-control" name="file">
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-group">
+                                    <label>Text</label>
+                                    <input type="text" class="form-control" name="text">
+                                </div>
+                            </div>
+                            <div class="card-footer text-right">
+                                <button class="btn btn-primary mr-1" type="submit">Submit</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>

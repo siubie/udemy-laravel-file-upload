@@ -22,7 +22,8 @@ Route::get('/', function () {
     return view('auth.login');
 });
 
-Route::get('/demo-file-upload', [DemoFileUploadController::class, 'index']);
+Route::get('/demo-file-upload', [DemoFileUploadController::class, 'index'])->name('fileupload.index');
+Route::post('/demo-file-upload', [DemoFileUploadController::class, 'store'])->name('fileupload.store');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('home', function () {

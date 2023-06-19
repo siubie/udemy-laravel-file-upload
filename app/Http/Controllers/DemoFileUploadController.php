@@ -27,4 +27,25 @@ class DemoFileUploadController extends Controller
 
         return response()->view('file-upload.index');
     }
+
+    public function store(Request $request)
+    {
+        //upload biasa
+        // $path = $request->file('file')->store('public');
+        // $path = Storage::putFile('public', $request->file('file'));
+
+        //upload rename namaa file
+        // $extension = $request->file('file')->extension();
+        // $name = 'dosen-ngoding';
+        // $path = $request->file('file')->storeAs('public', $name . '.' . $extension);
+
+        //upload ke custom disk
+        // $path = $request->file('file')->store('surat_tugas');
+        // $path = Storage::putFile('surat_tugas', $request->file('file'));
+        //upload ke custom disk custom folder
+        // $path = $request->file('file')->store('surat_tugas/folder_baru');
+        // $path = Storage::putFile('surat_tugas/folder_baru', $request->file('file'));
+
+        // ddd($path);
+    }
 }
