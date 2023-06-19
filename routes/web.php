@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DemoFileUploadController;
 use App\Http\Controllers\UserController;
 use GuzzleHttp\Middleware;
 use Illuminate\Http\Request;
@@ -21,6 +22,7 @@ Route::get('/', function () {
     return view('auth.login');
 });
 
+Route::get('/demo-file-upload', [DemoFileUploadController::class, 'index']);
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('home', function () {
