@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\DemoFileUploadController;
+use App\Http\Controllers\PublicFotoController;
 use App\Http\Controllers\UserController;
 use GuzzleHttp\Middleware;
 use Illuminate\Http\Request;
@@ -24,6 +25,9 @@ Route::get('/', function () {
 
 Route::get('/demo-file-upload', [DemoFileUploadController::class, 'index'])->name('fileupload.index');
 Route::post('/demo-file-upload', [DemoFileUploadController::class, 'store'])->name('fileupload.store');
+
+//route resource for public file upload
+Route::resource('public-foto', PublicFotoController::class);
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('home', function () {
