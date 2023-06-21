@@ -13,7 +13,7 @@ class UpdatePublicFotoRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -25,6 +25,8 @@ class UpdatePublicFotoRequest extends FormRequest
     {
         return [
             //
+            'name' => 'required',
+            'foto' => 'required|image|mimes:png|max:2048',
         ];
     }
 }

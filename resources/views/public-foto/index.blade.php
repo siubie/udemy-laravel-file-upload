@@ -39,11 +39,18 @@
                                             </td>
                                             <td> {{ $item->name }}
                                                 <div class="table-links">
-                                                    <a href="#">View</a>
+                                                    <a href="{{ route('public-foto.show', $item->id) }}">View</a>
                                                     <div class="bullet"></div>
-                                                    <a href="#">Edit</a>
+                                                    <a href="{{ route('public-foto.edit', $item->id) }}">Edit</a>
                                                     <div class="bullet"></div>
-                                                    <a href="#" class="text-danger">Trash</a>
+                                                    <form action="{{ route('public-foto.destroy', $item->id) }}"
+                                                        method="POST">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="btn-icon">
+                                                            Trash
+                                                        </button>
+                                                    </form>
                                                 </div>
                                             </td>
                                             <td>

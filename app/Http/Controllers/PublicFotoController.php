@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StorePublicFotoRequest;
 use App\Http\Requests\UpdatePublicFotoRequest;
 use App\Models\PublicFoto;
+use Illuminate\Support\Facades\Storage;
 
 class PublicFotoController extends Controller
 {
@@ -40,22 +41,13 @@ class PublicFotoController extends Controller
      */
     public function store(StorePublicFotoRequest $request)
     {
-        //if request has foto
-        if ($request->hasFile('foto')) {
-            //upload file
-            $request->file('foto')->store('public');
-            //create new public foto
-            PublicFoto::create([
-                'name' => $request->name,
-                'path' => $request->file('foto')->hashName(),
-            ]);
-        } else {
-            PublicFoto::create([
-                'name' => $request->name,
-                'path' => 'default.png',
-            ]);
-        }
-
+        //upload file
+        $request->file('foto')->store('public');
+        //create new public foto
+        PublicFoto::create([
+            'name' => $request->name,
+            'path' => $request->file('foto')->hashName(),
+        ]);
         //redirect to index
         return response()->redirectTo(route('public-foto.index'));
     }
@@ -69,7 +61,7 @@ class PublicFotoController extends Controller
     public function show(PublicFoto $publicFoto)
     {
         //
-        dd("Halaman show");
+        return response()->view('public-foto.show', compact('publicFoto'));
     }
 
     /**
@@ -81,7 +73,7 @@ class PublicFotoController extends Controller
     public function edit(PublicFoto $publicFoto)
     {
         //
-        dd("Halaman Edit");
+        return response()->view('public-foto.edit', compact('publicFoto'));
     }
 
     /**
@@ -93,8 +85,19 @@ class PublicFotoController extends Controller
      */
     public function update(UpdatePublicFotoRequest $request, PublicFoto $publicFoto)
     {
-        //
-        dd("Halaman Update");
+        //simpen foto yang lama
+        $oldFoto = $publicFoto->path;
+        //upload file ke public storage
+        $request->file('foto')->store('public');
+        //update data public foto di database
+        $publicFoto->update([
+            'name' => $request->name,
+            'path' => $request->file('foto')->hashName(),
+        ]);
+        //hapus file foto yang lama
+        Storage::disk('public')->delete($oldFoto);
+        //redirect ke halaman index foto
+        return response()->redirectTo(route('public-foto.index'));
     }
 
     /**
@@ -105,7 +108,10 @@ class PublicFotoController extends Controller
      */
     public function destroy(PublicFoto $publicFoto)
     {
-        //
-        dd("Halaman destroy");
+        //delete public foto from database
+        $publicFoto->delete();
+        //delete file foto from storage
+        Storage::disk('public')->delete($publicFoto->path);
+        return redirect()->route('public-foto.index');
     }
 }

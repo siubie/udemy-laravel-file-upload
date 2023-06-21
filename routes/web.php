@@ -23,11 +23,12 @@ Route::get('/', function () {
     return view('auth.login');
 });
 
+//route resource for public file upload
+Route::resource('public-foto', PublicFotoController::class);
+
 Route::get('/demo-file-upload', [DemoFileUploadController::class, 'index'])->name('fileupload.index');
 Route::post('/demo-file-upload', [DemoFileUploadController::class, 'store'])->name('fileupload.store');
 
-//route resource for public file upload
-Route::resource('public-foto', PublicFotoController::class);
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('home', function () {
