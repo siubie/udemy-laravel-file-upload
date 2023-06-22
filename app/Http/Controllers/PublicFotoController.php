@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StorePublicFotoRequest;
 use App\Http\Requests\UpdatePublicFotoRequest;
 use App\Models\PublicFoto;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 class PublicFotoController extends Controller
@@ -16,9 +17,8 @@ class PublicFotoController extends Controller
      */
     public function index()
     {
-        //
         return response()->view('public-foto.index', [
-            'public_fotos' => PublicFoto::paginate(5),
+            'public_fotos' => PublicFoto::where('user_id', Auth::user()->id)->paginate(5),
         ]);
     }
 

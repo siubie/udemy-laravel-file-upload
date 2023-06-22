@@ -21,6 +21,7 @@ class PublicFotoFactory extends Factory
             'name' => $this->faker->name(),
             //faker for path foto
             'path' => 'default.png',
+            'user_id' => '11',
         ];
     }
 }
