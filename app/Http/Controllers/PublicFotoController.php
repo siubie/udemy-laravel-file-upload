@@ -7,6 +7,7 @@ use App\Http\Requests\UpdatePublicFotoRequest;
 use App\Models\PublicFoto;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Intervention\Image\Facades\Image;
 
 class PublicFotoController extends Controller
 {
@@ -42,11 +43,18 @@ class PublicFotoController extends Controller
     public function store(StorePublicFotoRequest $request)
     {
         //upload file
-        $request->file('foto')->store('public');
-        //create new public foto
+        $request->file('foto')->store('public/' . Auth::user()->id);
+        //resize uploaded foto using intervetion
+        $image = Image::make(storage_path('app/public/' . Auth::user()->id . '/' . $request->file('foto')->hashName()))
+            ->fit(50, 50);
+        //save the image to thumbnails folder
+        Storage::disk('public')
+            ->put(Auth::user()->id . '/thumbnails/' . $request->file('foto')->hashName(), $image->encode());
+
         PublicFoto::create([
             'name' => $request->name,
             'path' => $request->file('foto')->hashName(),
+            'user_id' => Auth::user()->id,
         ]);
         //redirect to index
         return response()->redirectTo(route('public-foto.index'));
@@ -61,6 +69,9 @@ class PublicFotoController extends Controller
     public function show(PublicFoto $publicFoto)
     {
         //
+        if ($publicFoto->user_id != Auth::user()->id) {
+            return response()->redirectTo(route('public-foto.index'));
+        }
         return response()->view('public-foto.show', compact('publicFoto'));
     }
 
@@ -73,6 +84,9 @@ class PublicFotoController extends Controller
     public function edit(PublicFoto $publicFoto)
     {
         //
+        if ($publicFoto->user_id != Auth::user()->id) {
+            return response()->redirectTo(route('public-foto.index'));
+        }
         return response()->view('public-foto.edit', compact('publicFoto'));
     }
 
@@ -85,17 +99,31 @@ class PublicFotoController extends Controller
      */
     public function update(UpdatePublicFotoRequest $request, PublicFoto $publicFoto)
     {
+        if ($publicFoto->user_id != Auth::user()->id) {
+            return response()->redirectTo(route('public-foto.index'));
+        }
         //simpen foto yang lama
         $oldFoto = $publicFoto->path;
         //upload file ke public storage
-        $request->file('foto')->store('public');
+        $request->file('foto')->store('public/' . Auth::user()->id);
+        //resize uploaded foto using intervetion
+        $image = Image::make(storage_path('app/public/' . Auth::user()->id . '/' . $request->file('foto')->hashName()))
+            ->fit(50, 50);
+        //save the image to thumbnails folder
+        Storage::disk('public')
+            ->put(Auth::user()->id . '/thumbnails/' . $request->file('foto')->hashName(), $image->encode());
+
         //update data public foto di database
         $publicFoto->update([
             'name' => $request->name,
             'path' => $request->file('foto')->hashName(),
+            'user_id' => Auth::user()->id,
         ]);
         //hapus file foto yang lama
-        Storage::disk('public')->delete($oldFoto);
+        if ($oldFoto != 'default.png') {
+            Storage::disk('public')->delete(Auth::user()->id . '/' . $oldFoto);
+            Storage::disk('public')->delete(Auth::user()->id . '/thumbnails/' . $oldFoto);
+        }
         //redirect ke halaman index foto
         return response()->redirectTo(route('public-foto.index'));
     }
@@ -108,10 +136,16 @@ class PublicFotoController extends Controller
      */
     public function destroy(PublicFoto $publicFoto)
     {
+        if ($publicFoto->user_id != Auth::user()->id) {
+            return response()->redirectTo(route('public-foto.index'));
+        }
         //delete public foto from database
         $publicFoto->delete();
         //delete file foto from storage
-        Storage::disk('public')->delete($publicFoto->path);
+        if ($publicFoto->path != 'default.png') {
+            Storage::disk('public')->delete(Auth::user()->id . '/' . $publicFoto->path);
+            Storage::disk('public')->delete(Auth::user()->id . '/thumbnails/' . $publicFoto->path);
+        }
         return redirect()->route('public-foto.index');
     }
 }

@@ -54,7 +54,13 @@
                                                 </div>
                                             </td>
                                             <td>
-                                                <img src="{{ asset('storage/' . $item->path) }}" alt="{{ $item->name }}">
+                                                @if ($item->path == 'default.png')
+                                                    <img src="{{ asset('storage/' . $item->path) }}"
+                                                        alt="{{ $item->name }}">
+                                                @else
+                                                    <img src="{{ asset('storage/' . Auth::user()->id . '/thumbnails/' . $item->path) }}"
+                                                        alt="{{ $item->name }}">
+                                                @endif
                                             </td>
                                         </tr>
                                     @endforeach

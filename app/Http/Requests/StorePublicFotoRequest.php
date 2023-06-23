@@ -26,7 +26,7 @@ class StorePublicFotoRequest extends FormRequest
         return [
             //
             'name' => 'required',
-            'foto' => 'required|image|mimes:png|max:2048',
+            'foto' => 'required|image|mimes:png|max:2048|dimensions:min_width=1000,min_height=2000',
         ];
     }
 }

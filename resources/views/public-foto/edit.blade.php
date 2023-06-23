@@ -49,7 +49,7 @@
                                     @enderror
                                 </div>
                                 <div class="form-group">
-                                    <img src="{{ asset('storage/' . $publicFoto->path) }}" width="100px"
+                                    <img src="{{ asset('storage/' . Auth::user()->id . '/' . $publicFoto->path) }}"
                                         alt="{{ $publicFoto->name }}" />
                                 </div>
                             </div>
