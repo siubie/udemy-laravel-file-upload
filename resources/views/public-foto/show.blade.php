@@ -19,7 +19,8 @@
                         </div>
                         <div class="card-body">
                             <div>
-                                <img src="{{ asset('storage/' . $publicFoto->path) }}" alt="image" />
+                                <img src="{{ asset('storage/' . Auth::user()->id . '/' . $publicFoto->path) }}"
+                                    alt="image" />
                                 <h2>{{ $publicFoto->name }}</h2>
                             </div>
                         </div>

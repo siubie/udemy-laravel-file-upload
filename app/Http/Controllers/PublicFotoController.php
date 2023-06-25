@@ -51,7 +51,7 @@ class PublicFotoController extends Controller
         Storage::disk('public')
             ->put(Auth::user()->id . '/thumbnails/' . $tempFile->filename, $image->encode());
         //copy file from tmp to public
-        Storage::copy('tmp/' . $tempFile->folder . '/' . $tempFile->filename, Auth::user()->id . '/' . $tempFile->filename);
+        Storage::copy('tmp/' . $tempFile->folder . '/' . $tempFile->filename, 'public/' . Auth::user()->id . '/' . $tempFile->filename);
         //save to database
         PublicFoto::create([
             'name' => $request->name,
