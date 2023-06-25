@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\DemoFileUploadController;
+use App\Http\Controllers\FilePondController;
 use App\Http\Controllers\PublicFotoController;
 use App\Http\Controllers\UserController;
 use GuzzleHttp\Middleware;
@@ -32,6 +33,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     //route resource for public file upload
     Route::resource('public-foto', PublicFotoController::class);
 
+    Route::post('file-pond', [FilePondController::class, 'store'])->name('filepond.store');
+    Route::delete('file-pond', [FilePondController::class, 'destroy'])->name('filepond.destroy');
     Route::get('home', function () {
         return view('dashboard.home');
     })->name('home');

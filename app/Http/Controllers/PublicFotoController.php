@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StorePublicFotoRequest;
 use App\Http\Requests\UpdatePublicFotoRequest;
 use App\Models\PublicFoto;
+use App\Models\TemporaryFiles;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image;
@@ -42,20 +43,24 @@ class PublicFotoController extends Controller
      */
     public function store(StorePublicFotoRequest $request)
     {
-        //upload file
-        $request->file('foto')->store('public/' . Auth::user()->id);
+        $tempFile = TemporaryFiles::where('folder', $request->foto)->first();
         //resize uploaded foto using intervetion
-        $image = Image::make(storage_path('app/public/' . Auth::user()->id . '/' . $request->file('foto')->hashName()))
+        $image = Image::make(storage_path('app/tmp/' . $tempFile->folder . '/' . $tempFile->filename))
             ->fit(50, 50);
-        //save the image to thumbnails folder
+        // save the image to thumbnails folder
         Storage::disk('public')
-            ->put(Auth::user()->id . '/thumbnails/' . $request->file('foto')->hashName(), $image->encode());
-
+            ->put(Auth::user()->id . '/thumbnails/' . $tempFile->filename, $image->encode());
+        //copy file from tmp to public
+        Storage::copy('tmp/' . $tempFile->folder . '/' . $tempFile->filename, Auth::user()->id . '/' . $tempFile->filename);
+        //save to database
         PublicFoto::create([
             'name' => $request->name,
-            'path' => $request->file('foto')->hashName(),
+            'path' => $tempFile->filename,
             'user_id' => Auth::user()->id,
         ]);
+        //after upload delete
+        Storage::deleteDirectory('tmp/' . $tempFile->folder);
+        TemporaryFiles::where('folder', $tempFile->folder)->delete();
         //redirect to index
         return response()->redirectTo(route('public-foto.index'));
     }
