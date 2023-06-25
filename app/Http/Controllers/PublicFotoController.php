@@ -107,21 +107,23 @@ class PublicFotoController extends Controller
         if ($publicFoto->user_id != Auth::user()->id) {
             return response()->redirectTo(route('public-foto.index'));
         }
+        //ambil data file yang baru
+        $tempFile = TemporaryFiles::where('folder', $request->foto)->first();
         //simpen foto yang lama
         $oldFoto = $publicFoto->path;
-        //upload file ke public storage
-        $request->file('foto')->store('public/' . Auth::user()->id);
         //resize uploaded foto using intervetion
-        $image = Image::make(storage_path('app/public/' . Auth::user()->id . '/' . $request->file('foto')->hashName()))
+        $image = Image::make(storage_path('app/tmp/' . $tempFile->folder . '/' . $tempFile->filename))
             ->fit(50, 50);
-        //save the image to thumbnails folder
+        // save the image to thumbnails folder
         Storage::disk('public')
-            ->put(Auth::user()->id . '/thumbnails/' . $request->file('foto')->hashName(), $image->encode());
+            ->put(Auth::user()->id . '/thumbnails/' . $tempFile->filename, $image->encode());
+        //copy file from tmp to public
+        Storage::copy('tmp/' . $tempFile->folder . '/' . $tempFile->filename, 'public/' . Auth::user()->id . '/' . $tempFile->filename);
 
         //update data public foto di database
         $publicFoto->update([
             'name' => $request->name,
-            'path' => $request->file('foto')->hashName(),
+            'path' => $tempFile->filename,
             'user_id' => Auth::user()->id,
         ]);
         //hapus file foto yang lama
@@ -129,6 +131,9 @@ class PublicFotoController extends Controller
             Storage::disk('public')->delete(Auth::user()->id . '/' . $oldFoto);
             Storage::disk('public')->delete(Auth::user()->id . '/thumbnails/' . $oldFoto);
         }
+        //after upload delete
+        Storage::deleteDirectory('tmp/' . $tempFile->folder);
+        TemporaryFiles::where('folder', $tempFile->folder)->delete();
         //redirect ke halaman index foto
         return response()->redirectTo(route('public-foto.index'));
     }
